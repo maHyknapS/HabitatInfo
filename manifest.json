@@ -1,0 +1,9 @@
+{
+    "name": "HabitatInfo",
+    "version_number": "1.0.0",
+    "website_url": "https://github.com/mahyknaps/HabitatInfo",
+    "description": "Displays the current habitat tags when your bobber lands in the water. Disappears automatically when you reel in.",
+    "dependencies": [
+        "BepInEx-BepInExPack_IL2CPP-6.0.0"
+    ]
+}
