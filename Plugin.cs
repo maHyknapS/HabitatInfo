@@ -4,7 +4,7 @@
  *
  * Author: mahyknaps
  * Assisted by: Claude (Anthropic AI)
- * Version: 1.0.0
+ * Version: 1.0.1
  */
 
 using BepInEx;
@@ -18,7 +18,7 @@ using UnityEngine;
 
 namespace HabitatInfo
 {
-    [BepInPlugin("com.habitat.info", "HabitatInfo", "1.0.0")]
+    [BepInPlugin("com.habitat.info", "HabitatInfo", "1.0.1")]
     public class Plugin : BasePlugin
     {
         public static Plugin? Instance;
@@ -69,6 +69,19 @@ namespace HabitatInfo
 
             return "";
         }
+
+        public static bool IsLocalPlayer(PlayerCasting instance)
+        {
+            try
+            {
+                var prop = typeof(PlayerCasting).GetProperty("IsLocalPlayer",
+                    BindingFlags.Public | BindingFlags.Instance);
+                if (prop != null)
+                    return (bool)(prop.GetValue(instance) ?? false);
+            }
+            catch { }
+            return false;
+        }
     }
 
     [HarmonyPatch(typeof(PlayerCasting), "Update")]
@@ -80,6 +93,10 @@ namespace HabitatInfo
         {
             try
             {
+                if (!Plugin.IsLocalPlayer(__instance))
+                    return;
+
+
                 bool hasB = __instance.HasBobber();
                 if (!hasB && _wasInWater)
                 {

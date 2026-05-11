@@ -21,7 +21,22 @@ The display disappears automatically when you reel in.
 2. Drop `HabitatInfo.dll` into `BepInEx/plugins/`
 3. Launch the game
 
+## Planned updates
+
+- 
+- 
+
+## Changelog
+
+### v1.0.1
+- Fixed multiplayer compatibility — habitat display now only shows for the local player
+
+### v1.0.0
+- Initial release
+
+
 ## Credits
 
 - **maHyknapS** — mod author
 - **Claude (Anthropic AI)** — coding assistance
+
