@@ -1,21 +1,16 @@
 # HabitatInfo
 
-A mod for Voodoo Fishin' that displays the current habitat tags 
-when your bobber lands in the water.
+A mod for Voodoo Fishin' that displays the current habitat tags when your bobber lands in the water.
 
 ## What it does
 
-When you cast your line, a notification appears showing the habitat 
-tags of the fishing area your bobber landed in — just like the 
-habitat info shown in the fish journal.
-
-The display disappears automatically when you reel in.
+When you cast your line, a notification appears showing the habitat tags of the fishing area — exactly the ones shown in the fish journal. The display disappears automatically when you reel in.
 
 Habitat names are displayed in your current game language.
 
 ## Example
 
-> Still Water | Woody | Shoreline | Pier
+> Slow Water | Woody | Shoreline
 
 ## Installation
 
@@ -26,19 +21,21 @@ Habitat names are displayed in your current game language.
 
 ## Changelog
 
+### v1.0.3
+- Fixed: internal location tags (e.g. Pier) are now correctly filtered out
+- Only habitat tags that appear in the fish journal are shown
+
 ### v1.0.2
 - Habitat tags now display in the player's current game language
 - Fixed tag names showing descriptions and rich text formatting
 
 ### v1.0.1
-- Fixed multiplayer compatibility — habitat display now only shows for the local player
+- Fixed multiplayer compatibility
 
 ### v1.0.0
 - Initial release
 
-
 ## Credits
 
-- **maHyknapS** — mod author
+- **mahyknaps** — mod author
 - **Claude (Anthropic AI)** — coding assistance
-
