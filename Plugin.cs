@@ -1,10 +1,10 @@
-﻿/*
+/*
  * HabitatInfo - Voodoo Fishin' Mod
  * Displays the current habitat tags when fishing
  *
  * Author: mahyknaps
  * Assisted by: Claude (Anthropic AI)
- * Version: 1.0.2
+ * Version: 1.0.3
  */
 
 using BepInEx;
@@ -19,7 +19,7 @@ using UnityEngine;
 
 namespace HabitatInfo
 {
-    [BepInPlugin("com.habitat.info", "HabitatInfo", "1.0.2")]
+    [BepInPlugin("com.habitat.info", "HabitatInfo", "1.0.3")]
     public class Plugin : BasePlugin
     {
         public static Plugin? Instance;
@@ -33,13 +33,11 @@ namespace HabitatInfo
             harmony.PatchAll();
         }
 
-        // Strips rich text tags, unicode escapes and descriptions from localized tag names
         public static string CleanTagName(string raw)
         {
             raw = Regex.Unescape(raw);
             raw = Regex.Replace(raw, "<.*?>", "");
 
-            // Remove description after separator (varies by language)
             var separators = new string[] { " - ", " — ", " \u2013 ", " \u2014 ", " ÔÇô " };
             foreach (var sep in separators)
             {
@@ -54,7 +52,6 @@ namespace HabitatInfo
             return raw.TrimEnd('-', ' ').Trim();
         }
 
-        // Reads environment tags from a FishingArea and returns them as a formatted string
         public static string LoadTagsFromArea(FishingArea area)
         {
             try
@@ -76,6 +73,12 @@ namespace HabitatInfo
                         {
                             var tag = indexer?.GetValue(rawList, new object[] { i });
                             if (tag == null) continue;
+
+                            // Only show tags that have an icon (journal-visible habitat tags)
+                            var iconProp = tag.GetType().GetProperty("TagIcon",
+                                BindingFlags.Public | BindingFlags.Instance);
+                            bool hasIcon = iconProp?.GetValue(tag) != null;
+                            if (!hasIcon) continue;
 
                             string? tagName = null;
 
@@ -112,7 +115,6 @@ namespace HabitatInfo
             return "";
         }
 
-        // Checks if a PlayerCasting instance belongs to the local player
         public static bool IsLocalPlayer(PlayerCasting instance)
         {
             try
@@ -156,7 +158,6 @@ namespace HabitatInfo
                 {
                     _wasInWater = true;
 
-                    // Find the fishing area at the bobber's position and load its tags
                     var manager = Object.FindObjectOfType<FishingManager>();
                     if (manager != null)
                     {
