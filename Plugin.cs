@@ -4,7 +4,7 @@
  *
  * Author: mahyknaps
  * Assisted by: Claude (Anthropic AI)
- * Version: 1.0.1
+ * Version: 1.0.2
  */
 
 using BepInEx;
@@ -14,11 +14,12 @@ using HarmonyLib;
 using Riverboat.Players;
 using Riverboat.UI;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace HabitatInfo
 {
-    [BepInPlugin("com.habitat.info", "HabitatInfo", "1.0.1")]
+    [BepInPlugin("com.habitat.info", "HabitatInfo", "1.0.2")]
     public class Plugin : BasePlugin
     {
         public static Plugin? Instance;
@@ -32,6 +33,28 @@ namespace HabitatInfo
             harmony.PatchAll();
         }
 
+        // Strips rich text tags, unicode escapes and descriptions from localized tag names
+        public static string CleanTagName(string raw)
+        {
+            raw = Regex.Unescape(raw);
+            raw = Regex.Replace(raw, "<.*?>", "");
+
+            // Remove description after separator (varies by language)
+            var separators = new string[] { " - ", " — ", " \u2013 ", " \u2014 ", " ÔÇô " };
+            foreach (var sep in separators)
+            {
+                int idx = raw.IndexOf(sep);
+                if (idx >= 0)
+                {
+                    raw = raw.Substring(0, idx);
+                    break;
+                }
+            }
+
+            return raw.TrimEnd('-', ' ').Trim();
+        }
+
+        // Reads environment tags from a FishingArea and returns them as a formatted string
         public static string LoadTagsFromArea(FishingArea area)
         {
             try
@@ -53,9 +76,28 @@ namespace HabitatInfo
                         {
                             var tag = indexer?.GetValue(rawList, new object[] { i });
                             if (tag == null) continue;
-                            var tagName = tag.GetType()
-                                .GetProperty("tagName", BindingFlags.Public | BindingFlags.Instance)
-                                ?.GetValue(tag)?.ToString();
+
+                            string? tagName = null;
+
+                            // Try localized name first so it matches the player's language
+                            try
+                            {
+                                var getLocalizedName = tag.GetType().GetMethod("GetLocalizedName",
+                                    BindingFlags.Public | BindingFlags.Instance);
+                                var raw = getLocalizedName?.Invoke(tag, null)?.ToString();
+                                if (!string.IsNullOrEmpty(raw))
+                                    tagName = CleanTagName(raw);
+                            }
+                            catch { }
+
+                            // Fall back to raw tag name if localization fails
+                            if (string.IsNullOrEmpty(tagName))
+                            {
+                                var tagNameProp = tag.GetType().GetProperty("tagName",
+                                    BindingFlags.Public | BindingFlags.Instance);
+                                tagName = tagNameProp?.GetValue(tag)?.ToString();
+                            }
+
                             if (!string.IsNullOrEmpty(tagName))
                                 names.Add(tagName!);
                         }
@@ -70,6 +112,7 @@ namespace HabitatInfo
             return "";
         }
 
+        // Checks if a PlayerCasting instance belongs to the local player
         public static bool IsLocalPlayer(PlayerCasting instance)
         {
             try
@@ -93,9 +136,7 @@ namespace HabitatInfo
         {
             try
             {
-                if (!Plugin.IsLocalPlayer(__instance))
-                    return;
-
+                if (!Plugin.IsLocalPlayer(__instance)) return;
 
                 bool hasB = __instance.HasBobber();
                 if (!hasB && _wasInWater)
@@ -115,6 +156,7 @@ namespace HabitatInfo
                 {
                     _wasInWater = true;
 
+                    // Find the fishing area at the bobber's position and load its tags
                     var manager = Object.FindObjectOfType<FishingManager>();
                     if (manager != null)
                     {
