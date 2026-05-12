@@ -11,6 +11,8 @@ habitat info shown in the fish journal.
 
 The display disappears automatically when you reel in.
 
+Habitat names are displayed in your current game language.
+
 ## Example
 
 > Still Water | Woody | Shoreline | Pier
@@ -21,12 +23,12 @@ The display disappears automatically when you reel in.
 2. Drop `HabitatInfo.dll` into `BepInEx/plugins/`
 3. Launch the game
 
-## Planned updates
-
-- 
-- 
 
 ## Changelog
+
+### v1.0.2
+- Habitat tags now display in the player's current game language
+- Fixed tag names showing descriptions and rich text formatting
 
 ### v1.0.1
 - Fixed multiplayer compatibility — habitat display now only shows for the local player
